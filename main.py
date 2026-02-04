@@ -1,48 +1,33 @@
 import sqlite3
-from datetime import date, datetime
-from Flight import Flight
-from helpers import validateDateInput, date_adapter, date_conversor
-
-# sqlite3.register_adapter(date, date_adapter)
-# sqlite3.register_converter('date', date_conversor)
+import pandas as pd
+from DBOperations.insert_flight import insert_flight
 
 # Define DBOperation class to manage all data into the database.
 class DBOperations:
-  db_name = "flight-management.db"
-  sql_create_table_firsttime = "DROP TABLE IF EXISTS Flights"
+  db_name = 'flight-management.db'
 
-  sql_create_table = """CREATE TABLE Flights"""
+  # sql_insert = ""
+  # sql_select_all = "SELECT * from Flights"
+  # sql_search = "SELECT * from Flights where FlightID = ?"
+  # sql_alter_data = ""
+  # sql_update_data = ""
+  # sql_delete_data = ""
+  # sql_drop_table = ""
 
-  sql_create_table_flights = """CREATE TABLE Flights (
-                              FlightID INT NOT NULL PRIMARY KEY,
-                              AeroPlaneID TEXT NOT NULL,
-                              DepAirportCode TEXT NOT NULL,
-                              ArrAirportCode TEXT NOT NULL,
-                              DepTime DATE,
-                              ArrTime DATE
-                            );
-                            """
-
-  sql_insert = ""
-  sql_select_all = "SELECT * from Flights"
-  sql_search = "SELECT * from Flights where FlightID = ?"
-  sql_alter_data = ""
-  sql_update_data = ""
-  sql_delete_data = ""
-  sql_drop_table = ""
-
-  # Initialise the database and create tables
+  # Initialise the database, import data and create tables
   def __init__(self):
-    self.create_tables();
-    self.populate_database();
+    self.create_tables()
+    self.import_airports()
+    self.populate_database()
 
+  # Creates tables from SQL file
   def create_tables(self):
     try:
       self.conn = sqlite3.connect(self.db_name)
       self.cur = self.conn.cursor()
 
       # Create the database using the SQL file
-      with open("schema.sql") as schema:
+      with open('sql/schema.sql') as schema:
         sql_create = schema.read().split(";")
 
       # Execute each SQL statement to create the tables
@@ -50,27 +35,55 @@ class DBOperations:
         self.cur.execute(statement)
 
       self.conn.commit()
-      print("Tables created successfully")
+      print('✅ Tables created successfully')
     except Exception as e:
       print(e)
     finally:
       self.conn.close()
 
+  # Import airport data from CSV
+  def import_airports(self):
+    try:
+      self.get_connection()
+      airports_data_raw = pd.read_csv('data/airports.csv')
+
+      for index, row in airports_data_raw.iterrows():
+        query = '''INSERT INTO Airport (AirportCode, AirportName, Country, City) VALUES(?, ?, ?, ?)'''
+        self.cur.execute(query, (row['IATA'], row['Airport name'], row['Country'], row['City']))
+
+      # Check
+      self.cur.execute('SELECT * FROM Airport LIMIT 5')
+      rows = self.cur.fetchall()
+
+      if (len(rows) == 0):
+        raise Exception('Failed to import airport data.')
+      else:
+        print('✅ Airports imported')
+
+      # for row in rows:
+      #   print(row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3])
+
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
+  # Populates the database with sample data
   def populate_database(self):
     try:
       self.conn = sqlite3.connect(self.db_name)
       self.cur = self.conn.cursor()
 
       # Create the database using the SQL file
-      with open("data/sample-data.sql") as schema:
-        sql_insert = schema.read().split(";")
+      with open('sql/sample-data.sql') as schema:
+        sql_insert = schema.read().split(';')
 
       # Execute each SQL statement to create the tables
       for statement in sql_insert:
         self.cur.execute(statement)
 
       self.conn.commit()
-      print("Sample data added")
+      print('✅ Sample data added')
     except Exception as e:
       print(e)
     finally:
@@ -80,16 +93,6 @@ class DBOperations:
     self.conn = sqlite3.connect(self.db_name)
     self.cur = self.conn.cursor()
 
-  # def create_table(self):
-  #   try:
-  #     self.get_connection()
-  #     self.cur.execute(self.sql_create_table_flights)
-  #     self.conn.commit()
-  #     print("Table created successfully")
-  #   except Exception as e:
-  #     print(e)
-  #   finally:
-  #     self.conn.close()
   def check_data(self):
     try:
       self.get_connection()
@@ -108,30 +111,56 @@ class DBOperations:
     try:
       self.get_connection()
 
-      flight_details = Flight(int(input("Enter FlightNumber: ")))
+      insert_flight(self.cur)
 
-      # TODO: AeroplaneRegistrationCode must be in Aeroplane table
-      flight_details.set_aeroplane_id(input("Enter AeroplaneRegistrationCode: "))
+      # flight_details = Flight(int(input("Enter FlightNumber: ")))
+      # flight_dest = FlightDestination()
 
-      # TODO: Validate date
-      # flight_details.set_departure_date(input("Enter DepartureDate: "))
-      while True:
-        try:
-          ddate = input("Enter DepartureDate: ")
-          datetime_value = datetime.strptime(ddate, "%Y-%m-%d %H:%M:%S")
-          flight_details.set_departure_date(ddate)
-          break
-        except ValueError:
-          print("Invalid date")
+      # # AeroplaneRegistrationCode must be in Aeroplane table
+      # while True:
+      #   try:
+      #     aeroplane_id = input("Enter AeroplaneRegistrationCode: ")
 
-      # date = validateDateInput(input("Enter DepartureDate: "))
-      
+      #     # Check aeroplane ID is in database
+      #     self.cur.execute("SELECT RegistrationCode FROM Aeroplane WHERE RegistrationCode = ?", (aeroplane_id,))
+      #     aeroplane_in_list = self.cur.fetchone()
 
-      # self.cur.execute(self.sql_insert, tuple(str(flight).split("\n")))
-      query = "INSERT INTO Flight (FlightNumber, AeroplaneRegistrationCode, DepartureDate) VALUES (?, ?, ?)"
-      self.cur.execute(query, flight_details.get_tuple())
+      #     if aeroplane_in_list:
+      #       flight_details.set_aeroplane_id(aeroplane_id)
+      #       break
+      #   except Exception as e:
+      #     print("Aeroplane registration code is not in the database. Please try again.")
 
-      # self.cur.execute("SELECT * FROM Flight")
+      # # Validate departure date
+      # while True:
+      #   try:
+      #     ddate = input("Enter DepartureDate in the format YYYY-MM-DD HH:MM:SS:")
+      #     datetime.strptime(ddate, "%Y-%m-%d %H:%M:%S")
+      #     flight_details.set_departure_date(ddate)
+      #     break
+      #   except ValueError:
+      #     print("Invalid date")
+
+      # # Departure airport code
+      # while True:
+      #   try:
+      #     airport_code = input("Enter DepartureAirportCode: ")
+
+      #     # Check airport code is in database
+      #     self.cur.execute("SELECT AirportCode FROM Destination WHERE AirportCode = ?", (airport_code,))
+      #     code_in_list = self.cur.fetchone()
+
+      #     if code_in_list:
+      #       flight_dest.set_departure_airport_code(airport_code)
+      #       break
+      #   except Exception as e:
+      #     print("Airport code is not in the database. Please try again.")
+
+      # # Insert destination
+
+      # # Insert flight
+      # self.cur.execute(flight_details.get_query_insert(), flight_details.get_tuple())
+
       self.conn.commit()
       print("Inserted data successfully")
     except Exception as e:
