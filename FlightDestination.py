@@ -11,10 +11,10 @@ class FlightDestination:
     self.flight_id = value
 
   def set_departure_time(self, value):
-    self.departure_time = datetime.isoformat(value)
+    self.departure_time = value
 
   def set_arrival_time(self, value):
-    self.arrival_time = datetime.isoformat(value)
+    self.arrival_time = value
   
   def set_departure_airport_code(self, value):
     self.departure_airport_code = value
@@ -23,7 +23,10 @@ class FlightDestination:
     self.arrival_airport_code = value
 
   def get_query_insert(self):
-    return "INSERT INTO FlightDestination (FlightID, DepartureTime, ArrivalTime, DepartureAirportCode, ArrivalAirportCode) VALUES (?, ?, ?, ?, ?)"
+    return '''
+            INSERT INTO FlightDestination (FlightID, DepartureTime, ArrivalTime, DepartureAirportCode, ArrivalAirportCode) 
+            VALUES (?, ?, ?, ?, ?)
+            '''
 
   # Gets the flight data as a tuple for insertion into table
   def get_tuple(self):

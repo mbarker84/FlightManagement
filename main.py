@@ -1,33 +1,24 @@
-import sqlite3
-import pandas as pd
+from DBOperations.connection import DBConnection
 from DBOperations.insert_flight import insert_flight
 from DBOperations.import_data import ImportData
+from DBOperations.search_flights import SearchFlight
 
 # Define DBOperation class to manage all data into the database.
 class DBOperations:
-  db_name = 'flight-management.db'
-
-  # sql_insert = ""
-  # sql_select_all = "SELECT * from Flights"
-  # sql_search = "SELECT * from Flights where FlightID = ?"
-  # sql_alter_data = ""
-  # sql_update_data = ""
-  # sql_delete_data = ""
-  # sql_drop_table = ""
-
   # Initialise the database, import data and create tables
   def __init__(self):
     self.create_tables()
+    self.import_data()
 
-    # Import data
-    importer = ImportData()
-    importer.import_all()
+  # Get database connection
+  def get_connection(self):
+    self.conn = DBConnection().get_connection()
+    self.cur = self.conn.cursor()
 
   # Creates tables from SQL file
   def create_tables(self):
     try:
-      self.conn = sqlite3.connect(self.db_name)
-      self.cur = self.conn.cursor()
+      self.get_connection()
 
       # Create the database using the SQL file
       with open('sql/schema.sql') as schema:
@@ -44,52 +35,33 @@ class DBOperations:
     finally:
       self.conn.close()
 
-  # Populates the database with sample data
-  def populate_database(self):
-    try:
-      self.conn = sqlite3.connect(self.db_name)
-      self.cur = self.conn.cursor()
+  # Import data from CSVs
+  def import_data(self):
+    importer = ImportData()
+    importer.import_all()
 
-      # Create the database using the SQL file
-      with open('sql/sample-data.sql') as schema:
-        sql_insert = schema.read().split(';')
-
-      # Execute each SQL statement to create the tables
-      for statement in sql_insert:
-        self.cur.execute(statement)
-
-      self.conn.commit()
-      print('✅ Sample data added')
-
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
-
-  def get_connection(self):
-    self.conn = sqlite3.connect(self.db_name)
-    self.cur = self.conn.cursor()
-
-  # View all scheduled flights
+  # View all scheduled flights, their departure dates and destinations
   def view_scheduled_flights(self):
-    try:
-      self.get_connection()
+    search = SearchFlight()
+    search.search_by_status()
+    # try:
+    #   self.get_connection()
 
-      query = '''
-              SELECT * FROM Flight 
-              WHERE StatusID IN 
-                (SELECT StatusID FROM FlightStatus WHERE StatusName = ?)
-              '''
-      self.cur.execute(query, ('SCHEDULED', ))
-      rows = self.cur.fetchall()
+    #   query = '''
+    #           SELECT * FROM Flight 
+    #           WHERE StatusID IN 
+    #             (SELECT StatusID FROM FlightStatus WHERE StatusName = ?)
+    #           '''
+    #   self.cur.execute(query, ('SCHEDULED', ))
+    #   rows = self.cur.fetchall()
 
-      for row in rows:
-        print(row)
+    #   for row in rows:
+    #     print(row)
 
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
+    # except Exception as e:
+    #   print(e)
+    # finally:
+    #   self.conn.close()
 
   # Insert flight data
   def insert_data(self):
@@ -97,7 +69,7 @@ class DBOperations:
       self.get_connection()
       insert_flight(self.cur)
       self.conn.commit()
-      print("Inserted data successfully")
+      print('Inserted data successfully')
     except Exception as e:
       print(e)
     finally:

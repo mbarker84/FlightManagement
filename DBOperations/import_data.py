@@ -1,5 +1,5 @@
-import sqlite3
 import pandas as pd
+from DBOperations.connection import DBConnection
 
 class ImportData():
   db_name = 'flight-management.db'
@@ -15,13 +15,18 @@ class ImportData():
   sql_insert_employees = 'INSERT INTO Employee (Position, Pilot, Crew, Salary) VALUES(?, ?, ?, ?)'
   sql_insert_email = 'INSERT INTO PersonEmail (EmailAddress, PersonID, ContactType) VALUES(?, ?, ?)'
   sql_insert_phone = 'INSERT INTO PersonTelephone (TelephoneNo, PersonID, ContactType) VALUES(?, ?, ?)'
+  sql_insert_flight_dest = '''
+                            INSERT INTO FlightDestination (FlightID, DepartureAirportCode, ArrivalAirportCode, DepartureTime, ArrivalTime)
+                            VALUES(?, ?, ?, ?, ?)
+                          '''
+  sql_pilot_assignment = 'INSERT INTO PilotAssignment VALUES(?, ?)'
 
   def __init__(self):
     print('Importing data...')
 
-  # Get the database connection
+  # Get database connection
   def get_connection(self):
-    self.conn = sqlite3.connect(self.db_name)
+    self.conn = DBConnection().get_connection()
     self.cur = self.conn.cursor()
 
   # Import all data into database
@@ -35,6 +40,9 @@ class ImportData():
       self.import_employees()
       self.import_emails()
       self.import_phone_nos()
+      self.import_flight_dest()
+
+      self.assign_pilots()
     except:
       raise Exception('Error importing data.')
 
@@ -236,3 +244,66 @@ class ImportData():
       print('⚠️ Failed to import phone data.\n' + e)
     finally:
       self.conn.close()
+
+   # Import flight-destination data from CSV
+  def import_flight_dest(self):
+    try:
+      self.get_connection()
+      data = pd.read_csv('data/flight-dest.csv')
+
+      for index, row in data.iterrows():
+        self.cur.execute(self.sql_insert_flight_dest, 
+          (row['FlightID'], row['DepartureAirportCode'], row['ArrivalAirportCode'], row['DepartureTime'], row['ArrivalTime']))
+
+      # Check
+      self.cur.execute('SELECT * FROM FlightDestination')
+      rows = self.cur.fetchall()
+
+      if (len(rows) == 0):
+        raise Exception('No data added')
+      else:
+        self.conn.commit()
+        print('✅ Flight destinations imported')
+        
+    except Exception as e:
+      print('⚠️ Failed to import flight destinations data.\n' + str(e))
+      raise Exception(e)
+    finally:
+      self.conn.close()
+
+  # Assign pilots to flights
+  def assign_pilots(self):
+    try:
+      self.get_connection()
+
+      # Get employees who are pilots
+      self.cur.execute('SELECT PersonID FROM Employee WHERE Pilot = TRUE')
+      pilots = self.cur.fetchall()
+
+      # Get flights
+      self.cur.execute('SELECT FlightID FROM Flight')
+      flights = self.cur.fetchall()
+
+      # Loop through pilots and assign a pilot to each to a flight
+      curr_index = 0
+
+      for flight_id in flights:
+        if curr_index < len(pilots) - 1:
+          self.cur.execute(self.sql_pilot_assignment, (flight_id[0], pilots[curr_index][0]))
+          curr_index += 1
+        else:
+          curr_index = 0
+
+      self.cur.execute('SELECT * FROM PilotAssignment')
+      rows = self.cur.fetchall()
+
+      if (len(rows) == 0):
+        raise Exception('No data added')
+      else:
+        self.conn.commit()
+        print('✅ Pilots assigned')
+    except Exception as e:
+      raise Exception(e)
+    finally:
+      self.conn.close()
+    
