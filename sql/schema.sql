@@ -28,7 +28,7 @@ CREATE TABLE Employee (
   Position TEXT,
   Pilot BOOLEAN,
   Crew BOOLEAN,
-  SALARY INTEGER,
+  Salary INTEGER,
   FOREIGN KEY (PersonID) REFERENCES Person (PersonID)
 );
 
@@ -64,11 +64,12 @@ CREATE TABLE Airport (
 
 CREATE TABLE Flight (
   FlightID INTEGER PRIMARY KEY,
-  FlightNumber INT CHECK (FlightNumber<=4),
+  FlightNumber INT CHECK (FlightNumber <= 9999),
   AeroplaneRegistrationCode TEXT NOT NULL,
   DepartureDate DATETIME,
   StatusID INTEGER,
-  FOREIGN KEY (StatusID) REFERENCES FlightStatus (StatusID)
+  FOREIGN KEY (StatusID) REFERENCES FlightStatus (StatusID),
+  FOREIGN KEY (AeroplaneRegistrationCode) REFERENCES Aeroplane (RegistrationCode)
 );
 
 CREATE TABLE Booking (
@@ -83,14 +84,16 @@ CREATE TABLE PilotAssignment (
   FlightID INTEGER NOT NULL,
   PersonID INTEGER NOT NULL,
   PRIMARY KEY (FlightID, PersonID),
-  FOREIGN KEY (PersonID) REFERENCES Employee (PersonID)
+  FOREIGN KEY (PersonID) REFERENCES Employee (PersonID),
+  FOREIGN KEY (FlightID) REFERENCES Flight (FlightID)
 );
 
 CREATE TABLE CrewAssignment (
   FlightID INTEGER NOT NULL,
   PersonID INTEGER NOT NULL,
   PRIMARY KEY (FlightID, PersonID),
-  FOREIGN KEY (PersonID) REFERENCES Employee (PersonID)
+  FOREIGN KEY (PersonID) REFERENCES Employee (PersonID),
+  FOREIGN KEY (FlightID) REFERENCES Flight (FlightID)
 );
 
 CREATE TABLE FlightDestination (
@@ -99,7 +102,9 @@ CREATE TABLE FlightDestination (
   ArrivalAirportCode TEXT NOT NULL,
   DepartureTime DATETIME,
   ArrivalTime DATETIME,
-  PRIMARY KEY (FlightID, DepartureTime, ArrivalTime)
+  PRIMARY KEY (FlightID, DepartureTime, ArrivalTime),
+  FOREIGN KEY (DepartureAirportCode) REFERENCES Airport (AirportCode),
+  FOREIGN KEY (ArrivalAirportCode) REFERENCES Airport (AirportCode)
 );
 
 

@@ -1,0 +1,9 @@
+﻿StatusName,Description
+SCHEDULED,Indicates that the flight is scheduled by the carrier.
+OUT-GATE,Aircraft has left the departing gate. Also known as: Chocks off
+IN-AIR,"Aircraft has taken off. Also known as: Wheels Up, Airborne"
+LANDED,"Aircraft has landed. Also known as: Wheels Down, Touchdown"
+IN-GATE,Aircraft now at arriving gate. Also known as: Chocks on
+CANCELLED,Flight is now canceled.
+DIVERTED,Flight has been diverted. Note that this status can happen anytime after OutGate and before InGate.
+PROPOSED,Indicates a General Aviation flight is proposed for the route.

@@ -1,0 +1,51 @@
+﻿PersonID,Position,Pilot,Crew,Salary
+1,Captain,TRUE,FALSE,54684
+2,First Officer,TRUE,FALSE,63949
+3,Student Pilot,TRUE,FALSE,72107
+4,Navigator,TRUE,FALSE,65420
+5,Flight Attendant,FALSE,TRUE,70134
+6,Senior Flight Attendant,FALSE,TRUE,52021
+7,Student Flight Attendant,FALSE,TRUE,54257
+8,Captain,TRUE,FALSE,53574
+9,First Officer,TRUE,FALSE,44453
+10,Student Pilot,TRUE,FALSE,41022
+11,Navigator,TRUE,FALSE,54927
+12,Flight Attendant,FALSE,TRUE,62864
+13,Senior Flight Attendant,FALSE,TRUE,74199
+14,Student Flight Attendant,FALSE,TRUE,54614
+15,Captain,TRUE,FALSE,47500
+16,First Officer,TRUE,FALSE,70193
+17,Student Pilot,TRUE,FALSE,63378
+18,Navigator,TRUE,FALSE,72564
+19,Flight Attendant,FALSE,TRUE,61294
+20,Senior Flight Attendant,FALSE,TRUE,70513
+21,Student Flight Attendant,FALSE,TRUE,61475
+22,Captain,TRUE,FALSE,65047
+23,First Officer,TRUE,FALSE,68305
+24,Student Pilot,TRUE,FALSE,71887
+25,Captain,TRUE,FALSE,46471
+26,First Officer,TRUE,FALSE,46606
+27,Student Pilot,TRUE,FALSE,53134
+28,Navigator,TRUE,FALSE,69217
+29,Flight Attendant,FALSE,TRUE,68123
+30,Senior Flight Attendant,FALSE,TRUE,48703
+31,Student Flight Attendant,FALSE,TRUE,41874
+32,Captain,TRUE,FALSE,46451
+33,First Officer,TRUE,FALSE,42824
+34,Student Pilot,TRUE,FALSE,66605
+35,Navigator,TRUE,FALSE,70601
+36,Flight Attendant,FALSE,TRUE,51777
+37,Senior Flight Attendant,FALSE,TRUE,72685
+38,Student Flight Attendant,FALSE,TRUE,55278
+39,Captain,TRUE,FALSE,74969
+40,First Officer,TRUE,FALSE,55650
+41,Student Pilot,TRUE,FALSE,74155
+42,Navigator,TRUE,FALSE,45353
+43,Flight Attendant,FALSE,TRUE,72195
+44,Senior Flight Attendant,FALSE,TRUE,64444
+45,Student Flight Attendant,FALSE,TRUE,60640
+46,Captain,TRUE,FALSE,40620
+47,First Officer,TRUE,FALSE,58537
+48,Student Pilot,TRUE,FALSE,72368
+49,Captain,TRUE,FALSE,44469
+50,First Officer,TRUE,FALSE,59112
