@@ -160,7 +160,7 @@ class SearchFlight:
   def view_flight_details(self):
     while True:
       try:
-        self.flight_id = input('Enter the flight number to view flight schedule (or type X to return to menu): ')
+        self.flight_id = input('Enter the flight ID to view flight schedule (or type X to return to menu): ')
 
         # Return to main menu
         if str(self.flight_id).upper() == 'X':
@@ -225,10 +225,33 @@ class SearchFlight:
       print(flight)
 
 
+  def show_flight_statuses(self):
+    try:
+      self.get_connection()
+      self.cur.execute('SELECT StatusID, StatusName, StatusDescription FROM FlightStatus')
+      results = self.cur.fetchall()
+
+      print('Select the numeric option or status name from the list:')
+      print('--------')
+      for item in results:
+        print(str(item[0]) + ': ' + item[1] + ' ' + item[2])
+      print('--------')
+
+    except Exception as e:
+      print(e)
+    finally:
+      self.conn.close()
+
+
   # Search flights by status
   def search_by_status(self):
     while True:
-      status_id = input('Enter flight status name or ID (or type X to return to menu): ')
+      # status_id = input('Enter flight status name or ID (or type X to return to menu): ')
+      print('Enter flight status name or ID')
+
+      # Get flight statuses and descriptions
+      self.show_flight_statuses()
+      status_id = input('Enter option (or type X to return to menu): ')
 
       # Return to main menu
       if status_id.upper() == 'X':
