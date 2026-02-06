@@ -1,6 +1,6 @@
 from DBOperations.connection import DBConnection
 from Flight import Flight
-from FlightDestination import FlightDestination
+from DBOperations.flight_list import FlightList
 
 class SearchFlight:
   selected_flight = None
@@ -43,36 +43,6 @@ class SearchFlight:
                       OR ArrivalAirportCode = ?
                       '''
   
-  sql_query_airport = 'SELECT City, AirportCode FROM Airport WHERE AirportCode = ?'
-  
-  sql_flight_overview = '''
-                        SELECT fID AS FlightID,
-                          (SELECT City FROM Airport WHERE AirportCode = ?) AS DepartureCity,
-                          (SELECT City FROM Airport WHERE AirportCode = ?) AS ArrivalCity
-                        FROM FlightDetails
-                        WHERE FlightID = ?
-                        '''
-  
-  sql_flight_dest_details = '''
-                        SELECT FlightID, DepartureAirportCode, 
-                          DepartureTime, ArrivalAirportCode, ArrivalTime,
-                          (SELECT FlightNumber FROM Flight 
-                          WHERE Flight.FlightID = FlightDestination.FlightID
-                          LIMIT 1) AS FlightNumber,
-                          (SELECT City FROM Airport 
-                          WHERE Airport.AirportCode = FlightDestination.DepartureAirportCode) AS DepartureCity,
-                          (SELECT City FROM Airport 
-                          WHERE Airport.AirportCode = FlightDestination.ArrivalAirportCode) AS ArrivalCity
-                        FROM FlightDestination
-                        WHERE FlightID = ?
-                        '''
-  
-  sql_pilot_names = '''
-                    SELECT FirstName, LastName FROM Person
-                    WHERE PersonID IN
-                      (SELECT PersonID FROM PilotAssignment
-                      WHERE PilotAssignment.FlightID = ?)
-                    '''
   
   def __init__(self, value):
     self.search_option = value
@@ -81,6 +51,7 @@ class SearchFlight:
       self.search_by_status()
     elif value == 2:
       self.search_by_airport()
+
   
   # Get database connection
   def get_connection(self):
@@ -102,58 +73,6 @@ class SearchFlight:
         return status[0]
       except:
         return None
-      
-
-  # Get the destinations that correspond to the flight (a flight may have more than one destination)    
-  def query_flight_destinations(self):
-    try:
-      self.get_connection()
-      self.cur.execute(self.sql_flight_dest_details, (self.flight_id, ))
-      self.flight_details = self.cur.fetchall()
-
-      if self.flight_details == None or len(self.flight_details) == 0:
-        raise Exception('Flight details not found.')
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
-
-
-  # Get the airport details for flight
-  def query_flight_overview(self):
-    try: 
-      self.get_connection()
-      flight = self.selected_flight
-      self.cur.execute(self.sql_flight_overview, (flight.get_departure_airport(), flight.get_arrival_airport(), self.flight_id,))
-      flight_overview = self.cur.fetchone()
-
-      if flight_overview == None:
-        raise Exception('Flight details not found.')
-      
-      self.selected_flight.set_departure_airport_name(flight_overview[1])
-      self.selected_flight.set_arrival_airport_name(flight_overview[2])
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
-
-
-  # Get pilots for flight
-  def query_pilot_names(self):
-    try:
-      self.get_connection()
-      self.cur.execute(self.sql_pilot_names, (self.flight_id, ))
-      self.pilots = self.cur.fetchall()
-
-      if self.pilots == None or len(self.pilots) == 0:
-        raise Exception('No pilots assigned to selected flight.')
-      
-      for row in self.pilots:
-        self.selected_flight.add_pilot_name(row[0] + ' ' + row[1])
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
 
   
   # Allow the user to select a flight from the list to view more details
@@ -178,32 +97,11 @@ class SearchFlight:
 
         if self.selected_flight == None:
           raise Exception('Flight not found.')
-
-        # Get the destinations for the flight
-        self.query_flight_destinations()
-
-        # Get overview and pilot details
-        self.query_flight_overview()
-        self.query_pilot_names()
-
-        # Print flight summary
-        print(self.selected_flight.get_summary())
-
-        if self.flight_details == None:
-          raise Exception('Unable to retrieve flight details')
-
-        # Print flight schedule
-        print('--------\n' + 'Schedule:')
-        for row in self.flight_details:
-          dest = FlightDestination()
-          dest.set_departure_airport_code(row[1])
-          dest.set_arrival_airport_code(row[3])
-          dest.set_departure_time(row[2])
-          dest.set_arrival_time(row[4])
-          dest.set_departure_airport_name(row[6])
-          dest.set_arrival_airport_name(row[7])
-          print(dest)
-        print('--------')
+        
+        # Get and print the detailed flight schedule
+        flight = FlightList(self.selected_flight)
+        flight.print_summary()
+        flight.print_flight_schedule()
 
         break
       except Exception as e:

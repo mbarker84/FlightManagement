@@ -2,6 +2,7 @@ from DBOperations.connection import DBConnection
 from DBOperations.insert_flight import InsertFlight
 from DBOperations.import_data import ImportData
 from DBOperations.search_flights import SearchFlight
+from DBOperations.delete_flight import DeleteFlight
 
 # Define DBOperation class to manage all data into the database.
 class DBOperations:
@@ -147,7 +148,7 @@ def main():
       elif __choose_menu == 3:
         InsertFlight()
       elif __choose_menu == 4:
-        db_ops.search_data()
+        DeleteFlight()
       elif __choose_menu == 5:
         db_ops.update_data()
       elif __choose_menu == 6:

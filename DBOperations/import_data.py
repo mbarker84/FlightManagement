@@ -2,7 +2,7 @@ import pandas as pd
 from DBOperations.connection import DBConnection
 from helpers import format_date
 
-class ImportData():
+class ImportData:
   db_name = 'flight-management.db'
 
   sql_insert_airports = 'INSERT INTO Airport (AirportCode, AirportName, Country, City) VALUES(?, ?, ?, ?)'
