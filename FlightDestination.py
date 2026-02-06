@@ -22,6 +22,12 @@ class FlightDestination:
   def set_arrival_airport_code(self, value):
     self.arrival_airport_code = value
 
+  def set_departure_airport_name(self, value):
+    self.departure_airport_name = value
+
+  def set_arrival_airport_name(self, value):
+    self.arrival_airport_name = value
+
   def get_query_insert(self):
     return '''
             INSERT INTO FlightDestination (FlightID, DepartureTime, ArrivalTime, DepartureAirportCode, ArrivalAirportCode) 
@@ -31,4 +37,10 @@ class FlightDestination:
   # Gets the flight data as a tuple for insertion into table
   def get_tuple(self):
     return (self.flight_id, self.departure_time, self.arrival_time, self.departure_airport_code, self.arrival_airport_code)
+  
+  def __str__(self):
+    return f"""
+            🛫 From: {self.departure_airport_code} {self.departure_airport_name} {self.departure_time} 
+            🛬 To: {self.arrival_airport_code} {self.arrival_airport_name} {self.arrival_time}
+            """
 

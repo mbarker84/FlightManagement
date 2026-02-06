@@ -33,6 +33,7 @@ class ImportData():
   def import_all(self):
     try:
       self.import_aeroplanes()
+      self.import_airports()
       self.import_people()
       self.import_flights()
       self.import_flight_status()

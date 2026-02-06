@@ -7,10 +7,15 @@ class Flight:
   flight_number = None
   aeroplane_id = None
   departure_date = None
+  arrival_date = None
+  departure_airport = None
+  arrival_airport = None
   status = 1
+  flight_destination = []
+  pilot_name = []
 
-  def __init__(self, id):
-    self.flight_number = id
+  def __init__(self, flight_number):
+    self.flight_number = flight_number
 
   def get_flight_id(self):
     return self.flight_id
@@ -24,15 +29,27 @@ class Flight:
   def get_departure_date(self):
     return datetime.isoformat(self.departure_date)
   
+  def get_departure_airport(self):
+    return self.departure_airport
+  
+  def get_arrival_airport(self):
+    return self.arrival_airport
+  
   def get_aeroplane_id(self):
     return self.aeroplane_id
+  
+  def get_pilot_names(self):
+    return self.pilot_name
   
   # Gets the flight data as a tuple for insertion into table
   def get_tuple(self):
     return (self.flight_number, self.aeroplane_id, self.departure_date)
 
-  def set_flight_number(self, id):
-    self.flight_number = int(id)
+  def set_flight_number(self, flight_number):
+    self.flight_number = int(flight_number)
+
+  def set_flight_id(self, id):
+    self.flight_id = int(id)
 
   def set_aeroplane_id(self, id):
     self.aeroplane_id = str(id)
@@ -40,5 +57,23 @@ class Flight:
   def set_departure_date(self, value):
     self.departure_date = value
 
+  def set_arrival_date(self, value):
+    self.arrival_date = value
+
+  def set_departure_airport(self, value):
+    self.departure_airport = value
+
+  def set_arrival_airport(self, value):
+    self.arrival_airport = value
+
+  def add_flight_destination(self, dest):
+    self.flight_destination.append(dest)
+
+  def remove_flight_destination(self, dest):
+    self.flight_destination.remove(dest)
+
+  def set_pilot_name(self, value):
+    self.pilot_name.append(value)
+
   def __str__(self):
-    return str(self.get_flight_id) + "\n" + self.aeroplane_id + "\n" + self.departure_date
+    return f"""{str(self.flight_id)} {self.departure_airport} {self.departure_date} -> {self.arrival_airport} {self.arrival_date}"""

@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS Booking;
 DROP TABLE IF EXISTS PilotAssignment;
 DROP TABLE IF EXISTS CrewAssignment;
 DROP TABLE IF EXISTS FlightDestination;
+DROP VIEW IF EXISTS FlightDetails;
 
 CREATE TABLE FlightStatus (
   StatusID INTEGER PRIMARY KEY,
