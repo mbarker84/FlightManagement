@@ -3,10 +3,11 @@ from datetime import datetime
 def validate_date_input(input_string):
   while True:
     try:
-      d = datetime.strptime(input_string, "%Y-%m-%d %H:%M:%S")
+      d = datetime.strptime(input_string, "%Y-%m-%d %H:%M")
       break
-    except ValueError:
+    except ValueError as e:
       print("invalid date")
+      raise ValueError(e)
   
   return d
 

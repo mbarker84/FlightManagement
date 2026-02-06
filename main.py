@@ -1,5 +1,5 @@
 from DBOperations.connection import DBConnection
-from DBOperations.insert_flight import insert_flight
+from DBOperations.insert_flight import InsertFlight
 from DBOperations.import_data import ImportData
 from DBOperations.search_flights import SearchFlight
 
@@ -45,17 +45,6 @@ class DBOperations:
     search = SearchFlight()
     search.search_by_status()
 
-  # Insert flight data
-  def insert_data(self):
-    try:
-      self.get_connection()
-      insert_flight(self.cur)
-      self.conn.commit()
-      print('Inserted data successfully')
-    except Exception as e:
-      print(e)
-    finally:
-      self.conn.close()
 
   def select_all(self):
     try:
@@ -156,7 +145,7 @@ def main():
       elif __choose_menu == 2:
         SearchFlight(2)
       elif __choose_menu == 3:
-        db_ops.select_all()
+        InsertFlight()
       elif __choose_menu == 4:
         db_ops.search_data()
       elif __choose_menu == 5:

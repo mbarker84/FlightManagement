@@ -67,7 +67,6 @@ CREATE TABLE Flight (
   FlightID INTEGER PRIMARY KEY,
   FlightNumber INT CHECK (FlightNumber <= 9999),
   AeroplaneRegistrationCode TEXT NOT NULL,
-  DepartureDate DATETIME,
   StatusID INTEGER,
   FOREIGN KEY (StatusID) REFERENCES FlightStatus (StatusID),
   FOREIGN KEY (AeroplaneRegistrationCode) REFERENCES Aeroplane (RegistrationCode)

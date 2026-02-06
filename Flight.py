@@ -12,7 +12,7 @@ class Flight:
   departure_airport_name = None
   arrival_airport = None
   arrival_airport_name = None
-  status = 1
+  status = 1 # Automatically assigned a status of 'SCHEDULED'
   flight_destination = []
   pilot_name = []
 
@@ -46,10 +46,12 @@ class Flight:
   def get_pilot_names(self):
     return self.pilot_name
   
+  def get_status(self):
+    return self.status
+  
   # Gets the flight data as a tuple for insertion into table
   def get_tuple(self):
-    return (self.flight_number, self.aeroplane_id, self.departure_date)
-  
+    return (self.flight_number, self.aeroplane_id, self.status)
   
   # Get pilot names as string
   def get_pilot_summary(self):
@@ -118,6 +120,9 @@ class Flight:
 
   def add_flight_destination(self, dest):
     self.flight_destination.append(dest)
+
+  def set_status(self, value):
+    self.status = value
 
   def remove_flight_destination(self, dest):
     self.flight_destination.remove(dest)

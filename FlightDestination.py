@@ -7,6 +7,15 @@ class FlightDestination:
   departure_airport_code = None
   arrival_airport_code = None
 
+  def get_departure_time(self):
+    return self.get_departure_time
+  
+  def get_arrival_time(self):
+    return self.get_arrival_time
+  
+  def get_flight_id(self):
+    return self.get_flight_id
+
   def set_flight_id(self, value):
     self.flight_id = value
 
