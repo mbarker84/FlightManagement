@@ -40,7 +40,7 @@ class FlightDestination:
   
   def __str__(self):
     return f"""
-            🛫 From: {self.departure_airport_code} {self.departure_airport_name} {self.departure_time} 
-            🛬 To: {self.arrival_airport_code} {self.arrival_airport_name} {self.arrival_time}
-            """
+    🛫 From:  {self.departure_airport_code} {self.departure_airport_name} {self.departure_time} 
+    🛬 To:    {self.arrival_airport_code} {self.arrival_airport_name} {self.arrival_time}
+    """
 

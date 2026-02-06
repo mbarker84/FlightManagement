@@ -160,12 +160,10 @@ def main():
     while True:
       print("\n Menu:")
       print("**********")
-      print(" 1. View scheduled flights")
+      print(" 1. Search flight information")
       print(" 2. Schedule a new flight")
-      print(" 3. Select all data from Flight")
-      print(" 4. Search a flight")
-      print(" 5. Update data some records")
-      print(" 6. Delete data some records")
+      print(" 3. Delete a flight")
+      print(" 4. Update a flight")
       print(" 7. Exit\n")
 
       __choose_menu = int(input("Enter your choice: "))
