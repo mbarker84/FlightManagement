@@ -1,5 +1,6 @@
 import pandas as pd
 from DBOperations.connection import DBConnection
+from helpers import format_date
 
 class ImportData():
   db_name = 'flight-management.db'
@@ -253,8 +254,11 @@ class ImportData():
       data = pd.read_csv('data/flight-dest.csv')
 
       for index, row in data.iterrows():
+        dep_date = format_date(row['DepartureTime'])
+        arr_date = format_date(row['ArrivalTime'])
+
         self.cur.execute(self.sql_insert_flight_dest, 
-          (row['FlightID'], row['DepartureAirportCode'], row['ArrivalAirportCode'], row['DepartureTime'], row['ArrivalTime']))
+          (row['FlightID'], row['DepartureAirportCode'], row['ArrivalAirportCode'], dep_date, arr_date))
 
       # Check
       self.cur.execute('SELECT * FROM FlightDestination')

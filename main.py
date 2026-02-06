@@ -146,7 +146,7 @@ def main():
       print(" 2. Search flights by airport")
       print(" 3. Schedule a new flight")
       print(" 4. Delete a flight")
-      print(" 6. Update a flight")
+      print(" 5. Update a flight")
       print(" 6. Exit\n")
 
       __choose_menu = int(input("Enter your choice: "))
@@ -162,8 +162,6 @@ def main():
       elif __choose_menu == 5:
         db_ops.update_data()
       elif __choose_menu == 6:
-        db_ops.delete_data()
-      elif __choose_menu == 7:
         exit(0)
       else:
         print("Invalid Choice")
