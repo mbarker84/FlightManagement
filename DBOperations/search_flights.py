@@ -5,43 +5,57 @@ from DBOperations.flight_list import FlightList
 class SearchFlight:
   selected_flight = None
 
-  sql_search_flight_status_id = 'SELECT StatusName, StatusID FROM FlightStatus WHERE StatusID = ?'
+  # These two queries are almost the same, we are just filtering by a different variable
+  sql_get_flight_by_status = '''
+                    SELECT Flight.FlightID, 
+                    (SELECT FlightDestination.DepartureAirportCode FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime ASC
+                    LIMIT 1) AS DepartureAirportCode, 
+                    (SELECT FlightDestination.DepartureTime FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime ASC
+                    LIMIT 1) AS DepTime, 
+                    (SELECT FlightDestination.ArrivalAirportCode FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime DESC
+                    LIMIT 1) AS ArrivalAirportCode, 
+                    (SELECT FlightDestination.ArrivalTime FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime DESC
+                    LIMIT 1) AS ArrivalTime,
+                    FlightNumber
+                    FROM Flight
+                    WHERE StatusID = ?
+                    ORDER BY DepTime
+                    '''
+  
+  sql_get_flight_by_airport = '''
+                    SELECT Flight.FlightID, 
+                    (SELECT FlightDestination.DepartureAirportCode FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime ASC
+                    LIMIT 1) AS DepartureAirportCode, 
+                    (SELECT FlightDestination.DepartureTime FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime ASC
+                    LIMIT 1) AS DepTime, 
+                    (SELECT FlightDestination.ArrivalAirportCode FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime DESC
+                    LIMIT 1) AS ArrivalAirportCode, 
+                    (SELECT FlightDestination.ArrivalTime FROM FlightDestination
+                    WHERE FlightDestination.FlightID = Flight.FlightID
+                    ORDER BY DepartureTime DESC
+                    LIMIT 1) AS ArrivalTime,
+                    FlightNumber
+                    FROM Flight
+                    WHERE DepartureAirportCode = ?
+                    OR ArrivalAirportCode = ?
+                    ORDER BY DepTime
+                    '''
+
   sql_search_flight_status_name = 'SELECT StatusID FROM FlightStatus WHERE StatusName = ?'
-  sql_drop_view = 'DROP VIEW IF EXISTS FlightDetails'
-  sql_create_view = '''
-                    CREATE VIEW FlightDetails AS
-                    SELECT FlightDestination.FlightID AS fID,
-                      (SELECT DepartureAirportCode FROM FlightDestination AS fd
-                      WHERE fd.FlightID = FlightDestination.FlightID
-                      ORDER BY DepartureTime
-                      LIMIT 1) AS DepartureAirportCode,
-                      ArrivalAirportCode,
-                      MIN(DepartureTime) AS DepTime,
-                      MAX(ArrivalTime) AS ArrivalTime 
-                    FROM FlightDestination
-                    GROUP BY FlightID
-                    ORDER BY DepTime;
-                    '''
-  
-  sql_query_status = '''
-                    SELECT fID AS FlightID, DepartureAirportCode, DepTime, ArrivalAirportCode, ArrivalTime,
-                      (SELECT FlightNumber FROM Flight AS fl 
-                      WHERE fl.FlightID = FlightDetails.fID
-                      LIMIT 1) AS FlightNumber
-                    FROM FlightDetails
-                    WHERE fID IN
-                       (SELECT FlightID FROM Flight WHERE StatusID = ?)
-                    '''
-  
-  sql_query_airport_code = '''
-                      SELECT fID AS FlightID, DepartureAirportCode, DepTime, ArrivalAirportCode, ArrivalTime,
-                        (SELECT FlightNumber FROM Flight AS fl 
-                        WHERE fl.FlightID = FlightDetails.fID
-                        LIMIT 1) AS FlightNumber
-                      FROM FlightDetails
-                      WHERE DepartureAirportCode = ?
-                      OR ArrivalAirportCode = ?
-                      '''
   
   
   def __init__(self, value):
@@ -166,20 +180,14 @@ class SearchFlight:
         if status_id == None:
           raise Exception('Not a valid flight status. Please try again')
         
+        # Select all flights with the corresponding status
         self.get_connection()
-
-        # Create view
-        self.cur.execute(self.sql_drop_view)
-        self.cur.execute(self.sql_create_view)
-
-        # Select flights matching the status ID
-        self.cur.execute(self.sql_query_status, (status_id,))
+        self.cur.execute(self.sql_get_flight_by_status, (status_id,))
         results = self.cur.fetchall()
 
-        if len(results) <= 0:
-          raise Exception('No flights match the criteria.')
-
-        self.conn.close()
+        if len(results) == 0:
+          print('No flights match the criteria.')
+          break
 
         # Print their ID, departure time and airport, arrival time and destination.
         self.show_flights(results)
@@ -206,20 +214,15 @@ class SearchFlight:
         # Reset flights
         self.flights = []
 
-        self.get_connection()
-        
-        # Create view
-        self.cur.execute(self.sql_drop_view)
-        self.cur.execute(self.sql_create_view)
-
         # Select flights that have the airport ID as departure or arrival destination
-        self.cur.execute(self.sql_query_airport_code, (airport_id.upper(), airport_id.upper()))
+        self.get_connection()
+        self.cur.execute(self.sql_get_flight_by_airport, (airport_id.upper(), airport_id.upper()))
+
         results = self.cur.fetchall()
 
-        if len(results) <= 0:
-          raise Exception('No flights match the criteria.')
-
-        self.conn.close()
+        if len(results) == 0:
+          print('No flights match the criteria.')
+          break
 
         # Print their ID, departure time and airport, arrival time and destination.
         self.show_flights(results)

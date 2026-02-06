@@ -3,11 +3,10 @@ from DBOperations.connection import DBConnection
 
 class FlightList:
   sql_flight_overview = '''
-                        SELECT fID AS FlightID,
-                          (SELECT City FROM Airport WHERE AirportCode = ?) AS DepartureCity,
-                          (SELECT City FROM Airport WHERE AirportCode = ?) AS ArrivalCity
-                        FROM FlightDetails
-                        WHERE FlightID = ?
+                        SELECT
+                        (SELECT City FROM Airport WHERE AirportCode = ?) AS DepartureCity,
+                        (SELECT City FROM Airport WHERE AirportCode = ?) AS ArrivalCity
+                        FROM Airport
                         '''
   
   sql_flight_dest_details = '''
@@ -76,14 +75,14 @@ class FlightList:
   def query_flight_overview(self):
     try: 
       self.get_connection()
-      self.cur.execute(self.sql_flight_overview, (self.flight.get_departure_airport(), self.flight.get_arrival_airport(), self.flight_id,))
+      self.cur.execute(self.sql_flight_overview, (self.flight.get_departure_airport(), self.flight.get_arrival_airport()))
       flight_overview = self.cur.fetchone()
 
       if flight_overview == None:
         raise Exception('Flight details not found.')
       
-      self.flight.set_departure_airport_name(flight_overview[1])
-      self.flight.set_arrival_airport_name(flight_overview[2])
+      self.flight.set_departure_airport_name(flight_overview[0])
+      self.flight.set_arrival_airport_name(flight_overview[1])
     except Exception as e:
       print(e)
     finally:
