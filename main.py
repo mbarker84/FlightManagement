@@ -44,24 +44,6 @@ class DBOperations:
   def view_scheduled_flights(self):
     search = SearchFlight()
     search.search_by_status()
-    # try:
-    #   self.get_connection()
-
-    #   query = '''
-    #           SELECT * FROM Flight 
-    #           WHERE StatusID IN 
-    #             (SELECT StatusID FROM FlightStatus WHERE StatusName = ?)
-    #           '''
-    #   self.cur.execute(query, ('SCHEDULED', ))
-    #   rows = self.cur.fetchall()
-
-    #   for row in rows:
-    #     print(row)
-
-    # except Exception as e:
-    #   print(e)
-    # finally:
-    #   self.conn.close()
 
   # Insert flight data
   def insert_data(self):
@@ -160,18 +142,19 @@ def main():
     while True:
       print("\n Menu:")
       print("**********")
-      print(" 1. Search flight information")
-      print(" 2. Schedule a new flight")
-      print(" 3. Delete a flight")
-      print(" 4. Update a flight")
-      print(" 7. Exit\n")
+      print(" 1. Search flights by status")
+      print(" 2. Search flights by airport")
+      print(" 3. Schedule a new flight")
+      print(" 4. Delete a flight")
+      print(" 6. Update a flight")
+      print(" 6. Exit\n")
 
       __choose_menu = int(input("Enter your choice: "))
       # db_ops = DBOperations()
       if __choose_menu == 1:
-        db_ops.view_scheduled_flights()
+        SearchFlight(1)
       elif __choose_menu == 2:
-        db_ops.insert_data()
+        SearchFlight(2)
       elif __choose_menu == 3:
         db_ops.select_all()
       elif __choose_menu == 4:

@@ -33,6 +33,16 @@ class SearchFlight:
                        (SELECT FlightID FROM Flight WHERE StatusID = ?)
                     '''
   
+  sql_query_airport_code = '''
+                      SELECT fID AS FlightID, DepartureAirportCode, DepTime, ArrivalAirportCode, ArrivalTime,
+                        (SELECT FlightNumber FROM Flight AS fl 
+                        WHERE fl.FlightID = FlightDetails.fID
+                        LIMIT 1) AS FlightNumber
+                      FROM FlightDetails
+                      WHERE DepartureAirportCode = ?
+                      OR ArrivalAirportCode = ?
+                      '''
+  
   sql_query_airport = 'SELECT City, AirportCode FROM Airport WHERE AirportCode = ?'
   
   sql_flight_overview = '''
@@ -63,6 +73,14 @@ class SearchFlight:
                       (SELECT PersonID FROM PilotAssignment
                       WHERE PilotAssignment.FlightID = ?)
                     '''
+  
+  def __init__(self, value):
+    self.search_option = value
+
+    if value == 1:
+      self.search_by_status()
+    elif value == 2:
+      self.search_by_airport()
   
   # Get database connection
   def get_connection(self):
@@ -191,6 +209,21 @@ class SearchFlight:
       except Exception as e:
         print('⚠️ An error occured: ' + str(e))
 
+  
+  # Format and print the flight list
+  # (Some flights may have multiple stops, so only the final destination is shown)
+  def show_flights(self, flights):
+    for row in flights:
+      flight = Flight(row[5])
+      flight.set_flight_id(row[0])
+      flight.set_departure_airport(row[1])
+      flight.set_arrival_airport(row[3])
+      flight.set_departure_date(row[2])
+      flight.set_arrival_date(row[4])
+      flight.set_flight_number(row[5])
+      self.flights.append(flight)
+      print(flight)
+
 
   # Search flights by status
   def search_by_status(self):
@@ -202,7 +235,7 @@ class SearchFlight:
         break
 
       try:
-        self.get_connection()
+        # Reset flights
         self.flights = []
 
         # Check if input is integer, if so get the status name from the ID
@@ -212,31 +245,23 @@ class SearchFlight:
         if status_id == None:
           raise Exception('Not a valid flight status. Please try again')
         
+        self.get_connection()
+
         # Create view
         self.cur.execute(self.sql_drop_view)
         self.cur.execute(self.sql_create_view)
 
         # Select flights matching the status ID
         self.cur.execute(self.sql_query_status, (status_id,))
-        flights = self.cur.fetchall()
+        results = self.cur.fetchall()
 
-        if len(flights) <= 0:
+        if len(results) <= 0:
           raise Exception('No flights match the criteria.')
 
         self.conn.close()
 
         # Print their ID, departure time and airport, arrival time and destination.
-        # (Some flights may have multiple stops, so only the final destination is shown)
-        for row in flights:
-          flight = Flight(row[5])
-          flight.set_flight_id(row[0])
-          flight.set_departure_airport(row[1])
-          flight.set_arrival_airport(row[3])
-          flight.set_departure_date(row[2])
-          flight.set_arrival_date(row[4])
-          flight.set_flight_number(row[5])
-          self.flights.append(flight)
-          print(flight)
+        self.show_flights(results)
 
         # Allow the user to select a flight from the list to view more details
         self.view_flight_details()
@@ -247,3 +272,42 @@ class SearchFlight:
       finally:
         self.conn.close()
 
+  # Search flights by airport
+  def search_by_airport(self):
+    while True:
+      airport_id = input('Enter 3-letter airport code (or type X to return to menu): ')
+
+      # Return to main menu
+      if airport_id.upper() == 'X':
+        break
+
+      try:
+        # Reset flights
+        self.flights = []
+
+        self.get_connection()
+        
+        # Create view
+        self.cur.execute(self.sql_drop_view)
+        self.cur.execute(self.sql_create_view)
+
+        # Select flights that have the airport ID as departure or arrival destination
+        self.cur.execute(self.sql_query_airport_code, (airport_id.upper(), airport_id.upper()))
+        results = self.cur.fetchall()
+
+        if len(results) <= 0:
+          raise Exception('No flights match the criteria.')
+
+        self.conn.close()
+
+        # Print their ID, departure time and airport, arrival time and destination.
+        self.show_flights(results)
+
+        # Allow the user to select a flight from the list to view more details
+        self.view_flight_details()
+        break
+
+      except Exception as e:
+        print('⚠️ An error occured: ' + str(e))
+      finally:
+        self.conn.close()

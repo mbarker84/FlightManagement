@@ -29,7 +29,10 @@ class Flight:
     return "INSERT INTO Flight (FlightNumber, AeroplaneRegistrationCode, DepartureDate) VALUES (?, ?, ?)"
   
   def get_departure_date(self):
-    return datetime.isoformat(self.departure_date)
+    return self.departure_date
+  
+  def get_arrival_date(self):
+    return self.arrival_date
   
   def get_departure_airport(self):
     return self.departure_airport
