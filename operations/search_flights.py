@@ -1,12 +1,13 @@
-from DBOperations.connection import DBConnection
+from operations.connection import DBConnection
 from Flight import Flight
-from DBOperations.flight_list import FlightList
+from operations.flight_list import FlightList
 
 class SearchFlight:
   selected_flight = None
 
-  # These two queries are almost the same, we are just filtering by a different variable
-  sql_get_flight_by_status = '''
+  # We have two queries that almost the same, we are just filtering by a different variable.
+  # The main body of the query is saved here to append to the filtering part
+  sql_flights_main = '''
                     SELECT Flight.FlightID, 
                     (SELECT FlightDestination.DepartureAirportCode FROM FlightDestination
                     WHERE FlightDestination.FlightID = Flight.FlightID
@@ -25,35 +26,22 @@ class SearchFlight:
                     ORDER BY DepartureTime DESC
                     LIMIT 1) AS ArrivalTime,
                     FlightNumber
-                    FROM Flight
+                    FROM Flight'''
+  
+  _sql_get_flight_by_status = '''
                     WHERE StatusID = ?
                     ORDER BY DepTime
                     '''
   
-  sql_get_flight_by_airport = '''
-                    SELECT Flight.FlightID, 
-                    (SELECT FlightDestination.DepartureAirportCode FROM FlightDestination
-                    WHERE FlightDestination.FlightID = Flight.FlightID
-                    ORDER BY DepartureTime ASC
-                    LIMIT 1) AS DepartureAirportCode, 
-                    (SELECT FlightDestination.DepartureTime FROM FlightDestination
-                    WHERE FlightDestination.FlightID = Flight.FlightID
-                    ORDER BY DepartureTime ASC
-                    LIMIT 1) AS DepTime, 
-                    (SELECT FlightDestination.ArrivalAirportCode FROM FlightDestination
-                    WHERE FlightDestination.FlightID = Flight.FlightID
-                    ORDER BY DepartureTime DESC
-                    LIMIT 1) AS ArrivalAirportCode, 
-                    (SELECT FlightDestination.ArrivalTime FROM FlightDestination
-                    WHERE FlightDestination.FlightID = Flight.FlightID
-                    ORDER BY DepartureTime DESC
-                    LIMIT 1) AS ArrivalTime,
-                    FlightNumber
-                    FROM Flight
+  _sql_get_flight_by_airport = '''
                     WHERE DepartureAirportCode = ?
                     OR ArrivalAirportCode = ?
                     ORDER BY DepTime
                     '''
+  
+  # Append the main query body to the filters
+  sql_get_flight_by_airport = sql_flights_main + _sql_get_flight_by_airport
+  sql_get_flight_by_status = sql_flights_main + _sql_get_flight_by_status
 
   sql_search_flight_status_name = 'SELECT StatusID FROM FlightStatus WHERE StatusName = ?'
   
@@ -158,7 +146,6 @@ class SearchFlight:
   # Search flights by status
   def search_by_status(self):
     while True:
-      # status_id = input('Enter flight status name or ID (or type X to return to menu): ')
       print('Enter flight status name or ID')
 
       # Get flight statuses and descriptions

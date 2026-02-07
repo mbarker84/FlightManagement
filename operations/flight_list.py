@@ -1,5 +1,5 @@
 from FlightDestination import FlightDestination
-from DBOperations.connection import DBConnection
+from operations.connection import DBConnection
 
 class FlightList:
   sql_flight_overview = '''
@@ -48,6 +48,10 @@ class FlightList:
 
     except Exception as e:
       print('⚠️ An error occured: ' + str(e))
+
+
+  def get_flight_id(self):
+    return self.flight_id
 
 
   # Get database connection
@@ -125,3 +129,14 @@ class FlightList:
   # Print flight summary
   def print_summary(self):
     print(self.flight.get_summary())
+
+
+  # Get the flight segment that matches the departure code
+  def get_dest_details(self, dep_airport):
+    flight_dest = None
+
+    for row in self.flight_details:
+      if row[1] == dep_airport:
+        flight_dest = row
+
+    return flight_dest

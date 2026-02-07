@@ -25,9 +25,6 @@ class Flight:
   def get_flight_number(self):
     return self.flight_number
   
-  def get_query_insert(self):
-    return "INSERT INTO Flight (FlightNumber, AeroplaneRegistrationCode, DepartureDate) VALUES (?, ?, ?)"
-  
   def get_departure_date(self):
     return self.departure_date
   
@@ -67,7 +64,6 @@ class Flight:
         pilots = pilots + self.pilot_name[i]
     return 'Pilots: ' + pilots
   
-  
   # Flight overview summary
   def get_summary(self):
     return f"""
@@ -75,21 +71,9 @@ class Flight:
     {self.get_pilot_summary()}
     """
   
-  
   # Flight identifier displayed to customer is a combination of destination and flight number
   def get_display_id(self):
     return f"""{self.arrival_airport}-{str(self.flight_number)}"""
-  
-  
-  # List pilot names as string
-  def get_pilot_names(self):
-    names = ''
-
-    for name in self.pilot_name:
-      names = names + ', ' + name
-
-    return names
-  
 
   def set_flight_number(self, flight_number):
     self.flight_number = int(flight_number)
@@ -131,4 +115,4 @@ class Flight:
     self.pilot_name.append(value)
 
   def __str__(self):
-    return f"""{str(self.flight_id)} {self.departure_airport} {self.departure_date} -> {self.arrival_airport} {self.arrival_date}"""
+    return f"""{str(self.flight_id)}: {self.departure_airport} {self.departure_date} -> {self.arrival_airport} {self.arrival_date}"""

@@ -1,5 +1,4 @@
-from datetime import datetime
-from DBOperations.connection import DBConnection
+from operations.connection import DBConnection
 from Flight import Flight
 from FlightDestination import FlightDestination
 from helpers import validate_date_input
@@ -18,7 +17,7 @@ class InsertFlight:
   def __init__(self):
     while True:
       try:
-        input_string = input('Enter FlightNumber (or type X to return to menu): ')
+        input_string = input('Enter Flight Number (must be 4 digits or less) (or type X to return to menu): ')
 
         # Return to main menu
         if str(input_string).upper() == 'X':
@@ -217,11 +216,14 @@ class InsertFlight:
       self.conn.close()
   
 
+  # Print the saved flight detailss
   def print_flight(self):
+    print('---------')
     print('Flight ID: ' + str(self.flight_details.get_flight_id()))
     print('Flight Number: ' + str(self.flight_details.get_flight_number()))
     print('Status: ' + str(self.flight_details.get_status()))
     print(self.flight_dest)
+    print('---------')
 
 
 

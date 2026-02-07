@@ -1,5 +1,5 @@
 import pandas as pd
-from DBOperations.connection import DBConnection
+from operations.connection import DBConnection
 from helpers import format_date
 
 class ImportData:

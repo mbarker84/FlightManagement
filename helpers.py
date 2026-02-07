@@ -6,8 +6,7 @@ def validate_date_input(input_string):
       d = datetime.strptime(input_string, "%Y-%m-%d %H:%M")
       break
     except ValueError as e:
-      print("invalid date")
-      raise ValueError(e)
+      raise ValueError("Invalid date. Must be in the format YYYY-MM-DD HH:MM")
   
   return d
 
