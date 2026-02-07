@@ -137,3 +137,7 @@ Enter the new arrival date (or leave blank to keep existing date):
 ```
 
 Enter `2026-05-01 18:00`. The UI should show confirmation of the change and a summary of the new departure and arrival times.
+
+### View statistics
+
+Selecting `7` from the menu shows some key statistics about the airline, such as popular destinations.

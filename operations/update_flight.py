@@ -188,6 +188,10 @@ class UpdateFlight:
         if new_time == None:
           raise Exception('Invalid date. Must be in the format YYYY-MM-DD HH:MM')
         
+        # Do not allow arrival before departure
+        if input_string <= self.flight_dest.get_departure_time():
+          raise Exception('Arrival date cannot be before departure.')
+        
         self.flight_dest.set_arrival_time(new_time)
         
         break

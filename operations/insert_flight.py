@@ -168,6 +168,11 @@ class InsertFlight:
           break
 
         validate_date_input(input_date)
+
+        # Do not allow arrival before departure
+        if input_date <= self.flight_dest.get_departure_time():
+          raise Exception('Arrival date cannot be before departure.')
+        
         self.flight_dest.set_arrival_time(input_date + ':00')
         break
       except ValueError as e:
@@ -218,12 +223,12 @@ class InsertFlight:
 
   # Print the saved flight detailss
   def print_flight(self):
-    print('---------')
+    print('------------------------------------')
     print('Flight ID: ' + str(self.flight_details.get_flight_id()))
     print('Flight Number: ' + str(self.flight_details.get_flight_number()))
     print('Status: ' + str(self.flight_details.get_status()))
     print(self.flight_dest)
-    print('---------')
+    print('------------------------------------')
 
 
 
