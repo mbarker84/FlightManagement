@@ -134,7 +134,7 @@ class UpdateFlight:
         # Delete the flight
         self.cur.execute(self.sql_delete_flight, (self.flight_id,))
 
-        print('Flight ' + self.flight_id + ' deleted')
+        print('✅ Flight ' + str(self.flight_id) + ' deleted')
         break
 
       except Exception as e:
@@ -248,7 +248,7 @@ class UpdateFlight:
       self.cur.execute(self.sql_update, (self.flight.get_flight_id(), dep_time, arr_time, airport_code))
 
       # Print the updated flight
-      print('Flight destination information updated')
+      print('✅ Flight destination information updated')
       print(self.flight_dest)
 
     except Exception as e:

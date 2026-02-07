@@ -113,7 +113,7 @@ class FlightList:
 
   # Print flight schedule
   def print_flight_schedule(self):
-    print('--------\n' + 'Schedule:')
+    print('------------------------------------------------\n' + 'Schedule:')
     for row in self.flight_details:
       dest = FlightDestination()
       dest.set_departure_airport_code(row[1])
@@ -123,7 +123,7 @@ class FlightList:
       dest.set_departure_airport_name(row[6])
       dest.set_arrival_airport_name(row[7])
       print(dest)
-    print('--------')
+    print('------------------------------------------------')
 
 
   # Print flight summary

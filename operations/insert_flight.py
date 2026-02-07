@@ -77,7 +77,7 @@ class InsertFlight:
         raise Exception('Flight ID not found.')
 
       self.flight_details.set_flight_id(flight_id[0])
-      print('Flight ' + str(flight_id[0]) + ' added')
+      print('New flight ' + str(flight_id[0]) + ' added')
     except Exception as e:
       print(e)
     finally:
@@ -88,7 +88,7 @@ class InsertFlight:
   def set_aeroplane_code(self):
     while True:
       try:
-        aeroplane_id = input('Enter AeroplaneRegistrationCode (or type X to return to menu): ')
+        aeroplane_id = input('Enter aeroplane registration code (e.g. N505DL) (or type X to return to menu): ')
 
         # Return to main menu
         if str(aeroplane_id).upper() == 'X':

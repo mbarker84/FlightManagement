@@ -4,6 +4,7 @@ from operations.flight_list import FlightList
 
 class SearchFlight:
   selected_flight = None
+  flight_statuses = {}
 
   # We have two queries that almost the same, we are just filtering by a different variable.
   # The main body of the query is saved here to append to the filtering part
@@ -42,8 +43,6 @@ class SearchFlight:
   # Append the main query body to the filters
   sql_get_flight_by_airport = sql_flights_main + _sql_get_flight_by_airport
   sql_get_flight_by_status = sql_flights_main + _sql_get_flight_by_status
-
-  sql_search_flight_status_name = 'SELECT StatusID FROM FlightStatus WHERE StatusName = ?'
   
   
   def __init__(self, value):
@@ -66,15 +65,10 @@ class SearchFlight:
     # If input is number, return as int
     if input_string.isdigit() == True:
       return int(input_string)
+    
     # Otherwise retrieve the ID from the database
     else:
-      try:
-        status_name = input_string.upper()
-        self.cur.execute(self.sql_search_flight_status_name, (status_name,))
-        status = self.cur.fetchone()
-        return status[0]
-      except:
-        return None
+      return self.flight_statuses[input_string.upper()]
 
   
   # Allow the user to select a flight from the list to view more details
@@ -113,7 +107,12 @@ class SearchFlight:
   # Format and print the flight list
   # (Some flights may have multiple stops, so only the final destination is shown)
   def show_flights(self, flights):
+    # Show total number of flights
+    print(str(len(flights)) + ' flights matching criteria:')
+    print('------------------------------------------------------')
+
     for row in flights:
+      # Create a Flight object
       flight = Flight(row[5])
       flight.set_flight_id(row[0])
       flight.set_departure_airport(row[1])
@@ -122,7 +121,9 @@ class SearchFlight:
       flight.set_arrival_date(row[4])
       flight.set_flight_number(row[5])
       self.flights.append(flight)
+
       print(flight)
+    print('------------------------------------------------------')
 
 
   def show_flight_statuses(self):
@@ -131,11 +132,17 @@ class SearchFlight:
       self.cur.execute('SELECT StatusID, StatusName, StatusDescription FROM FlightStatus')
       results = self.cur.fetchall()
 
+      if len(results) == 0:
+        raise Exception('Unable to retrieve flight statuses.')
+
       print('Select the numeric option or status name from the list:')
-      print('--------')
+      print('-------------------------------------------------------')
       for item in results:
         print(str(item[0]) + ': ' + item[1] + ' ' + item[2])
-      print('--------')
+
+        # Set statuses in dictionary
+        self.flight_statuses[item[1]] = str(item[0])
+      print('-------------------------------------------------------')
 
     except Exception as e:
       print(e)
@@ -150,10 +157,10 @@ class SearchFlight:
 
       # Get flight statuses and descriptions
       self.show_flight_statuses()
-      status_id = input('Enter option (or type X to return to menu): ')
+      input_string = input('Enter option (or type X to return to menu): ')
 
       # Return to main menu
-      if status_id.upper() == 'X':
+      if input_string.upper() == 'X':
         break
 
       try:
@@ -161,7 +168,7 @@ class SearchFlight:
         self.flights = []
 
         # Check if input is integer, if so get the status name from the ID
-        status_id = self.check_flight_status_input(status_id)
+        status_id = self.check_flight_status_input(input_string)
 
         # Show an error message if status invalid
         if status_id == None:
